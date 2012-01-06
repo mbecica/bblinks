@@ -1,0 +1,6 @@
+From Mike Bostok's suggestion to work with this data set in parallel coordinates and a map.
+
+Original data: http://www.numbeo.com/cost-of-living/?null and http://www.numbeo.com/common/colorful_gmaps_data.js?urlPrefix=../cost-of-living/&indexToShow=getCpiIndex&year=2012&dataset=costOfLiving
+
+Parallel coordinates from syntagmatic/visualizations
+Filter model from syntagmatic/json-filter
