@@ -1,0 +1,163 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta http-equiv="Content-type" content="text/html; charset=utf-8">
+  <title>Earthquakes - Parallel Coordinates with geoJSON</title>
+        
+  <script type="text/javascript" src="lib/d3/d3.min.js"></script>
+  <script type="text/javascript" src="lib/d3/d3.geo.min.js"></script>
+  <script type="text/javascript" src="lib/d3/d3.layout.min.js"></script>
+  <script type="text/javascript" src="lib/d3/d3.csv.min.js"></script>
+
+  <script type="text/javascript" src="lib/jquery.js"></script>
+  <script type="text/javascript" src="lib/underscore.js"></script>
+  <script type="text/javascript" src="lib/backbone.js"></script>
+  <script src="lib/jquery-ui-1.8.16.custom.min.js"></script>
+
+  <script type="text/javascript" src="js/parallel-coordinates-d3.js"></script>
+  <script type="text/javascript" src="js/filter.js"></script>
+  
+  <!-- SlickGrid -->
+  <link rel="stylesheet" href="lib/slickgrid/slick.grid.css" type="text/css" media="screen" charset="utf-8" />
+  <script src="lib/slickgrid/jquery.event.drag-2.0.min.js"></script>
+  <script src="lib/slickgrid/slick.core.js"></script>
+  <script src="lib/slickgrid/slick.grid.js"></script>
+  <script src="lib/slickgrid/slick.dataview.js"></script>
+  <script src="lib/slickgrid/slick.pager.js"></script>
+  <script src="js/grid.js"></script>
+  <script src="js/pie.js"></script>
+  <script src="js/options.js"></script>
+  
+  <script src="data/colors.js"></script>
+  <link rel="stylesheet" href="style.css" type="text/css" charset="utf-8" />
+  <style>
+    #parallel {
+    height:auto;
+    }
+  </style>
+</head>
+
+<body>
+<div id="nav">
+  <h1>Cost of Living</h1>
+  <div class="widget right toggle">
+	  <input type="range" min="0" max="1" value="0.79" step="0.01" name="power" list="powers" id="line_opacity"></input>
+   <br/>
+	  Opacity: <span id="opacity_level">50%</span>
+	</div>
+  <div><a href="#" id="shadows" class="right toggle">Shadows</a></div>
+  <div><a href="#" id="inverted" class="right toggle">Dark</a></div>
+  <div><a href="#" id="no_ticks" class="right toggle">Hide Ticks</a></div>
+  <p class="intro left clear">
+  </p>
+</div>
+<div id="main">
+  <div class="widgets">
+    <h3>Cost of living around the world colored by country</h3>
+    <div id="totals" class="button">Total Selected<br/></div>
+    <div id="pie" class="button">Group Breakdown<br/></div>
+    <a href="#" id="remove_selected" class="button red filter_control">Remove</a>
+    <a href="#" id="keep_selected" class="button green filter_control">Keep</a>
+    <div id="pager" class="info"></div>
+  </div>
+  <div id="parallel"></div>
+  <div id="myGrid"></div>
+  <script type="text/javascript">
+  
+  $(function() {
+ 
+// Highlighter not used yet 
+    var dimensions = new Filter(),
+	highlighter = new Selector(),
+	costs = [],
+	columns = ["Consumer Price", "Rent", "Consumer Price+Rent", "Groceries", "Restaurant Price", "Local Purch. Power"];
+    
+    d3.csv("data/costofliving.csv", function(data) {
+	draw(data);
+    });    
+
+    function draw(data) {
+	dimensions.set({data:data});
+
+        var Scolumns = _(data[0]).keys();
+        var axes = _(columns).without('name', 'group');
+	
+        var pc = parallel(dimensions, colors, columns);
+
+        var slicky = new grid({
+          model: dimensions,
+          selector: highlighter,
+          width: 960,
+          columns: Scolumns
+        });
+
+ // vertical full screen
+        var parallel_height = $(window).height() - 64 - 12 - 120 - 320;
+        if (parallel_height < 120) parallel_height = 120;  // min height
+        if (parallel_height > 340) parallel_height = 340;  // max height
+        $('#parallel').css({
+          height: parallel_height + 'px',
+          width: $(window).width() + 'px'
+        });
+    
+        slicky.update();
+        pc.render();    
+    }
+
+    // Events
+    dimensions.bind('change:filtered', function() {
+      var data = dimensions.get('data');
+      var filtered = dimensions.get('filtered');
+      var data_size = _(data).size();
+      var filtered_size = _(filtered).size();
+    });
+   /* 
+    highlighter.bind('change:selected', function() {
+      var highlighted = this.get('selected');
+      pc.highlight(highlighted);
+    });
+*/
+    $('#remove_selected').click(function() {
+      dimensions.outliers();
+      pc.update(dimensions.get('data'));
+      pc.render();
+      return false;
+    });
+    
+    $('#keep_selected').click(function() {
+      dimensions.inliers();
+      pc.update(dimensions.get('data'));
+      pc.render();
+      return false;
+    });
+    
+    $('#line_opacity').change(function() {
+      var val = Math.pow($(this).val(), 3);
+      $('#parallel .foreground path').css('stroke-opacity', val.toString());
+      $('#opacity_level').html((Math.round(val*10000)/100) + "%");
+    });
+  });
+  </script>
+  <!--
+    <p>
+     Copyright 2011, Mary Becica and Kai Chang
+    </p>
+    <p>
+     Licensed under the Apache License, Version 2.0 (the "License");
+     you may not use this file except in compliance with the License.
+     You may obtain a copy of the License at
+    </p>
+    <p>
+         http://www.apache.org/licenses/LICENSE-2.0
+    </p>
+    <p>
+     Unless required by applicable law or agreed to in writing, software
+     distributed under the License is distributed on an "AS IS" BASIS,
+     WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+     See the License for the specific language governing permissions and
+     limitations under the License.
+	-->
+</div>
+</body>
+</html>
