@@ -30,6 +30,7 @@
   <script src="js/options.js"></script>
   
   <script src="data/colors.js"></script>
+  <script src="data/latlong.js"></script>
   <link rel="stylesheet" href="style.css" type="text/css" charset="utf-8" />
   <style>
     #parallel {
@@ -60,6 +61,8 @@
     <a href="#" id="remove_selected" class="button red filter_control">Remove</a>
     <a href="#" id="keep_selected" class="button green filter_control">Keep</a>
     <div id="pager" class="info"></div>
+    <div id="legend"></div>
+    <div class="clear"></div>
   </div>
   <div id="parallel"></div>
   <div id="myGrid"></div>
@@ -71,19 +74,30 @@
     var dimensions = new Filter(),
 	highlighter = new Selector(),
 	costs = [],
-	columns = ["Consumer Price", "Rent", "Consumer Price+Rent", "Groceries", "Restaurant Price", "Local Purch. Power"];
+	axis = ["Consumer Price", "Rent", "Consumer Price+Rent", "Groceries", "Restaurant Price", "Local Purch. Power"];
     
     d3.csv("data/costofliving.csv", function(data) {
+	_.each(data, function(d) {
+	  var city = d.City.split(", ");
+	  if (city.length == 2) {
+	     d.city = city[0];
+	     d.country = city[1];
+	  } else {
+	     d.city = city[0] + ", " + city[1];
+	     d.country = city[2];
+	  }
+	  if (_.include(citiesNames, d.city)) {
+	     d.coordinates = citiesLatLng[_.indexOf(citiesNames, d.city)];
+	  }
+	});
 	draw(data);
     });    
 
     function draw(data) {
 	dimensions.set({data:data});
-
-        var Scolumns = _(data[0]).keys();
-        var axes = _(columns).without('name', 'group');
+        var Scolumns = _(_(data[0]).keys()).without('city', 'country', 'coordinates');
 	
-        var pc = parallel(dimensions, colors, columns);
+        var pc = parallel(dimensions, colors, axis);
 
         var slicky = new grid({
           model: dimensions,
@@ -103,9 +117,8 @@
     
         slicky.update();
         pc.render();    
-    }
 
-    // Events
+	// Events
     dimensions.bind('change:filtered', function() {
       var data = dimensions.get('data');
       var filtered = dimensions.get('filtered');
@@ -137,7 +150,10 @@
       $('#parallel .foreground path').css('stroke-opacity', val.toString());
       $('#opacity_level').html((Math.round(val*10000)/100) + "%");
     });
-  });
+
+    }
+
+      });
   </script>
   <!--
     <p>

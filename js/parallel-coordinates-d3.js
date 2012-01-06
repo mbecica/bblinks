@@ -57,13 +57,10 @@
         .selectAll("path")
         .data(cars)
         .enter().append("svg:path")
-        .attr("d", path);
-/*
+        .attr("d", path)
 	.attr("style", function(d) {
-		console.log(d);
-            return "stroke:" + colors[d.symbol] + ";";
+            return "stroke:" + colors[d.country] + ";";
         });
-*/
     // Add a group element for each dimension.
     var g = svg.selectAll(".dimension")
         .data(dimensions)
