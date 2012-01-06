@@ -159,6 +159,22 @@ h2 {
   fill: #ccc;
 }
 
+/* Map */
+#map {
+height:400px;
+overflow:hidden;
+}
+#map path {
+fill:#bbb;
+}
+#map circle {
+opacity:.6;
+display:none;
+}
+#map circle.show {
+display:block;
+}
+
 /*SlickGrid */
 #myGrid {
   width: 100% !important;  /* vs jquery resizable */

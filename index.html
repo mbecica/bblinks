@@ -64,6 +64,7 @@
     <div id="legend"></div>
     <div class="clear"></div>
   </div>
+  <div id="map"></div>
   <div id="parallel"></div>
   <div id="myGrid"></div>
   <script type="text/javascript">
@@ -73,9 +74,27 @@
 // Highlighter not used yet 
     var dimensions = new Filter(),
 	highlighter = new Selector(),
-	costs = [],
-	axis = ["Consumer Price", "Rent", "Consumer Price+Rent", "Groceries", "Restaurant Price", "Local Purch. Power"];
-    
+	axis = ["Consumer Price", "Rent", "Consumer Price+Rent", "Groceries", "Restaurant Price", "Local Purch. Power"],
+	xy = d3.geo.mercator().scale(900),
+	path = d3.geo.path().projection(xy);
+
+    var origin = xy.translate();
+	origin[0] = 640;
+	origin[1] = 250;
+	xy.translate(origin);
+    var countries = d3.select("#map")
+		      .append("svg:svg").append("svg:g").attr("id", "countries"),
+        points = d3.select("svg").append("svg:g");
+ 
+    d3.json("data/world-countries.json", function(c) {
+	countries.selectAll("path")
+	  .data(c.features)
+	  .enter().append("svg:path")
+	  .attr("d", path)
+	  .append("svg:title")
+	  .text(function(d) { return d.properties.name; });
+    });
+ 
     d3.csv("data/costofliving.csv", function(data) {
 	_.each(data, function(d) {
 	  var city = d.City.split(", ");
@@ -87,14 +106,38 @@
 	     d.country = city[2];
 	  }
 	  if (_.include(citiesNames, d.city)) {
+	     d.cost = citiesColor[_.indexOf(citiesNames, d.city)];
 	     d.coordinates = citiesLatLng[_.indexOf(citiesNames, d.city)];
 	  }
 	});
-	draw(data);
+	drawPC(data);
     });    
 
-    function draw(data) {
+    function drawMap(data) {
+	points.selectAll("circle")
+		.data(data.get('filtered'))
+		.enter().append("svg:circle")
+		.attr("r", function(d){return d.cost})
+		.attr("cx", function(d){return xy(d.coordinates)[0];})
+		.attr("cy", function(d){if (xy(d.coordinates)[1]) {return xy(d.coordinates)[1]};})
+		.style("fill", function(d) {return colors[d.country]}) 
+		.attr("class", "show")
+		.append("svg:title")
+		.text(function(d) { return d.City + ": " + d.coordinates});
+    }
+
+    function refreshMap(filtered) {
+	points.selectAll("circle")
+	      .attr("class", function(d) {return showClass(d, filtered)});
+    }
+
+    function showClass(d, filtered) {
+       return _.include(filtered, d) ? "show" : null;
+    }
+
+    function drawPC(data) {
 	dimensions.set({data:data});
+	drawMap(dimensions);
         var Scolumns = _(_(data[0]).keys()).without('city', 'country', 'coordinates');
 	
         var pc = parallel(dimensions, colors, axis);
@@ -124,6 +167,7 @@
       var filtered = dimensions.get('filtered');
       var data_size = _(data).size();
       var filtered_size = _(filtered).size();
+      refreshMap(dimensions.get('filtered'));
     });
    /* 
     highlighter.bind('change:selected', function() {
