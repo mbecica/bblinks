@@ -78,10 +78,6 @@
 	xy = d3.geo.mercator().scale(900),
 	path = d3.geo.path().projection(xy);
 
-    var origin = xy.translate();
-	origin[0] = 640;
-	origin[1] = 250;
-	xy.translate(origin);
     var countries = d3.select("#map")
 		      .append("svg:svg").append("svg:g").attr("id", "countries"),
         points = d3.select("svg").append("svg:g");
@@ -107,7 +103,10 @@
 	  }
 	  if (_.include(citiesNames, d.city)) {
 	     d.cost = citiesColor[_.indexOf(citiesNames, d.city)];
-	     d.coordinates = citiesLatLng[_.indexOf(citiesNames, d.city)];
+	     d.coordinates = xy([
+         citiesLatLng[_.indexOf(citiesNames, d.city)][1],
+         citiesLatLng[_.indexOf(citiesNames, d.city)][0]
+       ]);
 	  }
 	});
 	drawPC(data);
@@ -118,8 +117,8 @@
 		.data(data.get('filtered'))
 		.enter().append("svg:circle")
 		.attr("r", function(d){return d.cost})
-		.attr("cx", function(d){return xy(d.coordinates)[0];})
-		.attr("cy", function(d){if (xy(d.coordinates)[1]) {return xy(d.coordinates)[1]};})
+		.attr("cx", function(d){return d.coordinates[0];})
+		.attr("cy", function(d){return d.coordinates[1];})
 		.style("fill", function(d) {return colors[d.country]}) 
 		.attr("class", "show")
 		.append("svg:title")
@@ -152,7 +151,7 @@
  // vertical full screen
         var parallel_height = $(window).height() -$('#nav').height() - $('.widgets').height() - $('#myGrid').height() -40;
         if (parallel_height < 120) parallel_height = 120;  // min height
-        if (parallel_height > 340) parallel_height = 340;  // max height
+        if (parallel_height > 340) parallel_height = 240;  // max height
         $('#parallel').css({
           height: parallel_height + 'px',
           width: $(window).width() + 'px'

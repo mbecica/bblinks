@@ -162,6 +162,8 @@ h2 {
 /* Map */
 #map {
 height:400px;
+width: 960px;
+margin: 0 auto;
 overflow:hidden;
 }
 #map path {
@@ -275,7 +277,7 @@ display:block;
   fill: none;
   stroke: darkolivegreen;
   stroke-width: 1.5;
-  stroke-opacity: .2;
+  stroke-opacity: .6;
 }
 
 .highlight path {
