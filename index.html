@@ -93,7 +93,7 @@
         });
 
  // vertical full screen
-        var parallel_height = $(window).height() - 64 - 12 - 120 - 320;
+        var parallel_height = $(window).height() -$('#nav').height() - $('.widgets').height() - $('#myGrid').height() -40;
         if (parallel_height < 120) parallel_height = 120;  // min height
         if (parallel_height > 340) parallel_height = 340;  // max height
         $('#parallel').css({
