@@ -3,7 +3,7 @@
 
 <head>
   <meta http-equiv="Content-type" content="text/html; charset=utf-8">
-  <title>Earthquakes - Parallel Coordinates with geoJSON</title>
+  <title>Cost of Living brought to you by numbeo.com</title>
         
   <script type="text/javascript" src="lib/d3/d3.min.js"></script>
   <script type="text/javascript" src="lib/d3/d3.geo.min.js"></script>
@@ -116,7 +116,7 @@
 	points.selectAll("circle")
 		.data(data.get('filtered'))
 		.enter().append("svg:circle")
-		.attr("r", function(d){return d.cost})
+		.attr("r", function(d){return d.cost+1.5})
 		.attr("cx", function(d){return d.coordinates[0];})
 		.attr("cy", function(d){return d.coordinates[1];})
 		.style("fill", function(d) {return colors[d.country]}) 
