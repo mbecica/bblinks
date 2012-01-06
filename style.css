@@ -168,6 +168,10 @@ overflow:hidden;
 }
 #map path {
 fill:#bbb;
+opacity:.8;
+}
+body.inverted #map path {
+color:#000;
 }
 #map circle {
 opacity:.6;
