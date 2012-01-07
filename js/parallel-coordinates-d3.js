@@ -4,7 +4,8 @@
     var self = {},
 	dimensions,
 	container = d3.select("#parallel"),
-	dragging = {};
+	dragging = {},
+	highlighted = null;
 
     var line = d3.svg.line(),
         axis = d3.svg.axis().orient("left"),
@@ -59,7 +60,7 @@
         .enter().append("svg:path")
         .attr("d", path)
 	.attr("style", function(d) {
-            return "stroke:" + colors[d.country] + ";";
+            return "stroke:" + colors[d.cost] + ";";
         });
     // Add a group element for each dimension.
     var g = svg.selectAll(".dimension")
@@ -166,7 +167,7 @@ function position(d) {
                          .enter().append("svg:path")
                            .attr("d", path)
                            .attr("style", function(d) {
-                             return "stroke:" + colors[d.group] + ";";
+                             return "stroke:" + colors[d.cost] + ";";
                            });
         }
       };

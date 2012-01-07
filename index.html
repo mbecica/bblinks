@@ -41,7 +41,7 @@
 
 <body>
 <div id="nav">
-  <h1>Cost of Living</h1>
+  <h1>Cost of Living from numbeo.com</h1>
   <div class="widget right toggle">
 	  <input type="range" min="0" max="1" value="0.79" step="0.01" name="power" list="powers" id="line_opacity"></input>
    <br/>
@@ -55,7 +55,7 @@
 </div>
 <div id="main">
   <div class="widgets">
-    <h3>Cost of living around the world colored by country</h3>
+    <h3>Cost of living relative to New York City colored by country</h3>
     <div id="totals" class="button">Total Selected<br/></div>
     <div id="pie" class="button">Group Breakdown<br/></div>
     <a href="#" id="remove_selected" class="button red filter_control">Remove</a>
@@ -104,9 +104,9 @@
 	  if (_.include(citiesNames, d.city)) {
 	     d.cost = citiesColor[_.indexOf(citiesNames, d.city)];
 	     d.coordinates = xy([
-         citiesLatLng[_.indexOf(citiesNames, d.city)][1],
-         citiesLatLng[_.indexOf(citiesNames, d.city)][0]
-       ]);
+         	citiesLatLng[_.indexOf(citiesNames, d.city)][1],
+         	citiesLatLng[_.indexOf(citiesNames, d.city)][0]
+             ]);
 	  }
 	});
 	drawPC(data);
@@ -119,8 +119,11 @@
 		.attr("r", function(d){return d.cost+1.5})
 		.attr("cx", function(d){return d.coordinates[0];})
 		.attr("cy", function(d){return d.coordinates[1];})
-		.style("fill", function(d) {return colors[d.country]}) 
+		.style("fill", function(d) {return costColors[d.cost]}) 
 		.attr("class", "show")
+		.on("mouseover", function(e) {
+		    //var highlighted = 
+		})
 		.append("svg:title")
 		.text(function(d) { return d.City + ": " + d.coordinates});
     }
@@ -139,7 +142,7 @@
 	drawMap(dimensions);
         var Scolumns = _(_(data[0]).keys()).without('city', 'country', 'coordinates');
 	
-        var pc = parallel(dimensions, colors, axis);
+        var pc = parallel(dimensions, costColors, axis);
 
         var slicky = new grid({
           model: dimensions,
@@ -168,12 +171,12 @@
       var filtered_size = _(filtered).size();
       refreshMap(dimensions.get('filtered'));
     });
-   /* 
+    
     highlighter.bind('change:selected', function() {
       var highlighted = this.get('selected');
       pc.highlight(highlighted);
     });
-*/
+    
     $('#remove_selected').click(function() {
       dimensions.outliers();
       pc.update(dimensions.get('data'));
